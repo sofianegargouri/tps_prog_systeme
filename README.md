@@ -103,12 +103,33 @@ La fonction `fork()` crée le même programme et l'éxecute, il le duplique.
 
 `exit()` arrête le process courant et renvoie l'int mis en paramètre à son process parent
 
-3 - Écrire un programme dont la fonction main se termine par une boucle infinie (while(1) ;) précédée de la création d’un processus fils, chargé d’afficher son pid, celui de son père puis qui se termine.
+3 - Écrire un programme dont la fonction main se termine par une boucle infinie `while(1);` précédée de la création d’un processus fils, chargé d’afficher son pid, celui de son père puis qui se termine.
 Comment, lors de l’exécution du programme, mettre alors en évidence la présence d’un processus zombie.
 
-
+Lorsque l'on ouvre un autre terminal en tapant `pstree -p <pid parent>`, nous obtenons le schéma suivant:
+`main(7338)───main(7339)`
+`main(7339)` est le processus fils de 7338. Malgré le `exit()`, le processus est toujours bien présent.
+En faisant la commande `ps alx`, nous nous appercevons que le processus 7339 a un état Z (comme zombie). Cela signifie que le processus a bien été arrêté mais que son parent n'a pas encore géré sa suppression.
 
 5 - Interrompre l’exécution du programme en lui envoyant un signal, puis exécutez à nouveau la commande ps. Que devient le zombie ?
 
+Le zombie est détruit.
 
 6 - Modifier le programme précédent de façon à ce qu’il n’y ait pas de création d’un tel processus (cf. fonctions de type wait())
+
+On ajoute `wait(&status)` avec `status = -1`. -1 correspond aux process enfants du parent.
+
+## Exercice de synthèse
+
+Diagramme de séquence disponible sous docs/diagramme séquence.jpg
+
+Le main.c contient une fonction main contenant chacun des exercices. Les exercices de compréhension du TP sont disponible dans la partie 3. Il faut les décommenter et commenter ce qui ne l'est pas.
+L'exercice de synthèse est fonctionnel.
+
+Le principe est de créer un processus fils qui va gérer une connexion. Ce processus fils met en place la gestion des signaux, que ce soit interruption ou alarme. Les interruptions `exit()` le processus avec un code renvoyé au parent. Voici la liste de nos codes:
+
+- 0: La connexion est ok
+- 1: Le nombre de tentatives a été dépassé
+- 2: Le temps est écoulé
+
+Lorsque le processus fils appelle `exit()`, le processus devient zombie, et le parent prend le relai. Nous avons auparavant désactivé le Ctrl+C dans le parent, mais la gestion dans le processus fils est toujours disponible. Le processus parent attend que le processus fils s'arrête et renvoie un code. Nous affichons un message en fonction du code renvoyé à l'arrêt du processus fils.
