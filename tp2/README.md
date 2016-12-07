@@ -55,7 +55,7 @@ Les threads d'un même processus sont parallèles les uns aux autres.
 
 ### Mise en place d'un mécanisme de protection
 
-1 - Ce procédé s'appelle l'attente active (aussi appelé polling en anglais). Il faut l'éviter car il consomme des ressources inutilement en bouclant infiniment en attente d'une réponse. Ce procédé peut-être remplacé par l'envoi de signaux par exemple (dans un cas général, non spécifique au C). Par exemple, dans AngularJS, il est possible de `broadcast` un signal, identifié par un string, et de passer des données en paramètres. Dans un autre composant par exemple, il est possible d'exécuter une fonction lorsque le signal du `broadcast` est détecté. (Envoi de signaux en AngularJS)[http://www.dotnettricks.com/learn/angularjs/understanding-emit-broadcast-and-on-in-angularjs]
+1 - Ce procédé s'appelle l'attente active (aussi appelé polling en anglais). Il faut l'éviter car il consomme des ressources inutilement en bouclant infiniment en attente d'une réponse. Ce procédé peut-être remplacé par l'envoi de signaux par exemple (dans un cas général, non spécifique au C). Par exemple, dans AngularJS, il est possible de `broadcast` un signal, identifié par un string, et de passer des données en paramètres. Dans un autre composant par exemple, il est possible d'exécuter une fonction lorsque le signal du `broadcast` est détecté. [Envoi de signaux en AngularJS](http://www.dotnettricks.com/learn/angularjs/understanding-emit-broadcast-and-on-in-angularjs)
 
 2 - Cela permet généralement de résoudre le problème, mais pas parfaitement. En effet, cela résout le problème lorsque les deux threads ne s'éxecutent pas en même temps. Si par exemple dans notre main, nous mettons:
 ```
