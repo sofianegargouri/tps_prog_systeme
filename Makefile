@@ -11,7 +11,7 @@ directories:
 
 build_release:
 	rm -f PRS.zip
-	zip -r PRS.zip docs tp1.c Makefile README.md
+	zip -r PRS.zip docs tp1 tp2 Makefile README.md
 
 clean:
 	rm -rf build

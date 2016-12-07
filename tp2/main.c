@@ -15,12 +15,23 @@
 #include <sys/wait.h>
 #include <pthread.h>
 #include <time.h>
+#include <ctype.h>
 #define NB_FORKS 50000
+#define BUSY_LOWER 30
+#define BUSY_UPPER 20
 
 typedef struct {
   int thread_nb;
   int nb_executions;
-} custom_thread;
+} custom_thread_part2;
+
+typedef struct {
+  char *string;
+} custom_thread_part3;
+
+int busy = 1;
+
+struct timespec time1, time2;
 
 void *do_nothing() {
   int i = 0;
@@ -28,10 +39,7 @@ void *do_nothing() {
 }
 
 void *print_num_and_count(void *args) {
-  struct timespec time1, time2;
-  time1.tv_sec = 0;
-  time1.tv_nsec = 50000000L;
-  custom_thread *temp_thread = args;
+  custom_thread_part2 *temp_thread = args;
 
   // while(temp_thread->nb_executions < 10) {
   while(1) {
@@ -42,14 +50,52 @@ void *print_num_and_count(void *args) {
   pthread_exit(0);
 }
 
+void *toLowerCase(void *args) {
+  custom_thread_part3 *temp_thread = args;
+
+  char *phrase=temp_thread->string;
+  int i = 0;
+  while(phrase[i] != '\0') {
+    if (busy == 0 || busy == BUSY_LOWER) {
+      busy = BUSY_LOWER;
+      printf("%c", tolower(phrase[i]));
+      fflush(stdout);
+      nanosleep(&time1, &time2);
+      i++;
+    }
+  }
+  printf("\n");
+  busy = 0;
+}
+
+void *toUpperCase(void *args) {
+  custom_thread_part3 *temp_thread = args;
+
+  char *phrase=temp_thread->string;
+  int i = 0;
+  while(phrase[i] != '\0') {
+    if (busy == 0 || busy == BUSY_UPPER) {
+      busy = BUSY_UPPER;
+      printf("%c", toupper(phrase[i]));
+      fflush(stdout);
+      nanosleep(&time1, &time2);
+      i++;
+    }
+  }
+  printf("\n");
+  busy = 0;
+}
+
 int main(int argc, char *argv[]) {
   int pid, j, status;
+  time1.tv_sec = 0;
+  time1.tv_nsec = 50000000L;
   void  * ret;
 
   if (argc < 2) {
-    printf("Usage:              ./build/tp2 "RED"<numeroPartie>"RESET"\n");
-    printf("1: Créer 50000 threads\n");
-    printf("2: Lancer n threads affichant son numéro tous les 100ms\n");
+    printf("Usage:              ./build/tp2 "GREEN"<numeroPartie>"RESET"\n");
+    printf("        1: Créer 50000 threads\n");
+    printf("        2: Lancer n threads affichant son numéro tous les 100ms\n");
     exit(0);
   }
 
@@ -72,15 +118,20 @@ int main(int argc, char *argv[]) {
   // Lancer n threads
   if(argv[1][0] == '2') {
     int i = 0, thread_nb, max_threads, nb_executions = 0;
+    pthread_t *thread = (pthread_t *)malloc(max_threads * sizeof(pthread_t));
+    custom_thread_part2 *args;
+
+    if (argc < 3) {
+      printf("Usage:              ./build/tp2 2 "GREEN"<nbThreads>"RESET"\n");
+      exit(1);
+    }
     max_threads = atoi(&argv[2][0]);
-    pthread_t thread[max_threads];
-    custom_thread *args;
 
     printf("Création de "GREEN"%d"RESET" threads\n", max_threads);
 
     for(i = 0; i < max_threads; i++) {
       printf("Création du thread "GREEN"%d"RESET"\n", i + 1);
-      args = (custom_thread *)malloc(sizeof (custom_thread));
+      args = (custom_thread_part2 *)malloc(sizeof (custom_thread_part2));
 
       thread_nb = i + 1;
 
@@ -99,6 +150,37 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
       }
     }
-    // while(1) {}
+  }
+
+  if(argv[1][0] == '3') {
+    pthread_t *to_lowercase = (pthread_t *)malloc(sizeof(pthread_t));
+    pthread_t *to_uppercase = (pthread_t *)malloc(sizeof(pthread_t));
+
+    if (argc < 3) {
+      printf("Usage:              ./build/tp2 3 "GREEN"\"<chaine de caractères>\""RESET"\n");
+      exit(1);
+    }
+
+    custom_thread_part3 *args;
+
+    args->string = argv[2];
+
+    if(pthread_create(to_lowercase, NULL, toLowerCase, args) == -1) {
+      perror("pthread_create()");
+      exit(EXIT_FAILURE);
+    }
+    if(pthread_create(to_uppercase, NULL, toUpperCase, args) == -1) {
+      perror("pthread_create()");
+      exit(EXIT_FAILURE);
+    }
+    busy = 0;
+    if(pthread_join(*to_lowercase, &ret)) {
+      perror("pthread_join()");
+      exit(EXIT_FAILURE);
+    }
+    if(pthread_join(*to_uppercase, &ret)) {
+      perror("pthread_join()");
+      exit(EXIT_FAILURE);
+    }
   }
 }
