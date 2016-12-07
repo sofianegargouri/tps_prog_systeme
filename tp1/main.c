@@ -149,7 +149,7 @@ int main (int argc, char *argv[]) {
   struct sigaction act;
 
   if (argc < 2) {
-    printf("Usage:              ./build/main "RED"<numeroPartie>"RESET"\n");
+    printf("Usage:              ./build/tp1 "RED"<numeroPartie>"RESET"\n");
     exit(0);
   }
 

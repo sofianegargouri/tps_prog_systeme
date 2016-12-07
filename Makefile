@@ -1,10 +1,10 @@
-all: directories tp1 tp2
+all: directories tp_one tp_two
 
-tp1:
+tp_one:
 	gcc tp1/main.c -o build/tp1
 
-tp2:
-	gcc tp2/main.c -o build/tp2
+tp_two:
+	gcc tp2/main.c -o build/tp2  -pthread
 
 directories:
 	mkdir -p build
