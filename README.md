@@ -1,5 +1,5 @@
 # Programmation système
 
-Le compte-rendu du TP1 est disponible à l'adresse:
+[Compte-rendu du TP1](https://github.com/sofianegargouri/tps_prog_systeme/tree/master/tp1)
 
-Le compte-rendu du TP2 est disponible à l'adresse:
+[Compte-rendu du TP2](https://github.com/sofianegargouri/tps_prog_systeme/tree/master/tp2)
