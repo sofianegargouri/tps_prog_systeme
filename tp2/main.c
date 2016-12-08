@@ -118,7 +118,6 @@ int main(int argc, char *argv[]) {
   // Lancer n threads
   if(argv[1][0] == '2') {
     int i = 0, thread_nb, max_threads, nb_executions = 0;
-    pthread_t *thread = (pthread_t *)malloc(max_threads * sizeof(pthread_t));
     custom_thread_part2 *args;
 
     if (argc < 3) {
@@ -126,6 +125,7 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
     max_threads = atoi(&argv[2][0]);
+    pthread_t *thread = (pthread_t *)malloc(max_threads * sizeof(pthread_t));
 
     printf("Création de "GREEN"%d"RESET" threads\n", max_threads);
 
